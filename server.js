@@ -453,6 +453,14 @@ app.get('/login', (req, res) => {
     res.redirect(authorizeURL);
 });
 
+// Store user data temporarily
+let userDataStore = {};
+
+// Generate a unique ID for storing user data
+function generateUniqueId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
 app.get('/callback', async (req, res) => {
     const code = req.query.code;
     try {
@@ -461,13 +469,39 @@ app.get('/callback', async (req, res) => {
         spotifyApi.setRefreshToken(refresh_token);
 
         const userTopArtists = await getUserTopArtists();
-        const averageCoordinates = calculateAverageCoordinates(userTopArtists.map(artist => artist.coordinates));
+        const uniqueId = generateUniqueId();
+        userDataStore[uniqueId] = userTopArtists;
 
-        // Store data temporarily if needed or redirect with encoded data
-        res.redirect(`/index.html?data=${encodeURIComponent(JSON.stringify(userTopArtists))}`);
+        // Redirect with unique ID instead of data
+        res.redirect(`/index.html?dataId=${uniqueId}`);
     } catch (error) {
         console.error('Authorization error:', error);
         res.status(500).send('Authentication failed!');
+    }
+});
+
+app.get('/api/user-data', (req, res) => {
+    const dataId = req.query.dataId;
+    if (!dataId || !userDataStore[dataId]) {
+        return res.status(400).send('Invalid or missing data ID');
+    }
+
+    res.json(userDataStore[dataId]);
+    delete userDataStore[dataId]; // Optionally delete data after sending
+});
+
+app.get('/api/artist-coordinates', async (req, res) => {
+    const artistName = req.query.artist;
+    if (!artistName) {
+        return res.status(400).send('Artist name is required');
+    }
+
+    try {
+        const coordinates = await calculateArtistCoordinates(artistName);
+        res.json(coordinates);
+    } catch (error) {
+        console.error(`Error calculating coordinates for ${artistName}:`, error);
+        res.status(500).send('Error calculating artist coordinates');
     }
 });
 

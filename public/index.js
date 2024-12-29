@@ -9,21 +9,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch and handle any redirected data from server
     const urlParams = new URLSearchParams(window.location.search);
-    const userDataParam = urlParams.get('data');
+    const dataId = urlParams.get('dataId');
 
-    if (userDataParam) {
+    if (dataId) {
         try {
-            const userTopArtists = JSON.parse(decodeURIComponent(userDataParam));
+            const response = await axios.get(`/api/user-data?dataId=${encodeURIComponent(dataId)}`);
+            const userTopArtists = response.data;
             console.log('User top artists:', userTopArtists);
             plotTopArtists(userTopArtists);
         } catch (error) {
-            console.error('Error parsing user data:', error);
+            console.error('Error fetching user data:', error);
         }
     } else {
-        console.log('No user data received in the URL parameters.');
+        console.log('No user data ID received in the URL parameters.');
     }
 
     document.getElementById('search-btn').addEventListener('click', onSearchButtonClick);
+    document.getElementById('login-btn').addEventListener('click', onLoginButtonClick);
 });
 
 // Load initial datasets
@@ -47,173 +49,28 @@ async function loadInitialData() {
 // Handle artist search and plot their positions
 async function onSearchButtonClick() {
     const artistName = document.getElementById('artist-search').value.toLowerCase();
+    clearPreviousHighlight(); // Clear previous highlights before new search
     const existingArtist = preloadedArtists.find(artist => artist.artist.toLowerCase() === artistName);
 
     if (existingArtist) {
         highlightArtist(existingArtist);
     } else {
-        const artistCoordinates = await calculateArtistCoordinates(artistName);
+        const artistCoordinates = await fetchArtistCoordinates(artistName);
         if (artistCoordinates) {
-            plotArtist(artistCoordinates);
+            plotArtist({ x: artistCoordinates.x, y: artistCoordinates.y, label: artistName });
         }
     }
 }
 
-// Calculate artist coordinates using Last.fm data and custom logic
-async function calculateArtistCoordinates(artistName) {
+// Fetch artist coordinates from the server
+async function fetchArtistCoordinates(artistName) {
     try {
-        const similarArtists = await getSimilarArtistsFromLastFM(artistName);
-        const validArtists = similarArtists.filter(artist =>
-            preloadedArtists.some(a => a.artist.toLowerCase() === artist.name.toLowerCase())
-        );
-
-        let baseCoordinates = { x: 0, y: 0 };
-        if (validArtists.length > 0) {
-            const weightedCoordinates = validArtists.reduce((acc, similar) => {
-                const foundArtist = preloadedArtists.find(entry => entry.artist.toLowerCase() === similar.name.toLowerCase());
-                if (foundArtist) {
-                    acc.x += foundArtist.x;
-                    acc.y += foundArtist.y;
-                    acc.count += 1;
-                }
-                return acc;
-            }, { x: 0, y: 0, count: 0 });
-            
-            if (weightedCoordinates.count > 0) {
-                baseCoordinates.x = weightedCoordinates.x / weightedCoordinates.count;
-                baseCoordinates.y = weightedCoordinates.y / weightedCoordinates.count;
-            }
-        }
-
-        if (baseCoordinates.x === 0 && baseCoordinates.y === 0) {
-            const topTags = await getTopTagsFromLastFM(artistName);
-            baseCoordinates = calculateCoordinatesFromTags(topTags);
-        }
-
-        const topTags = await getTopTagsFromLastFM(artistName);        
-        return adjustCoordinatesForTags(baseCoordinates, topTags);
+        const response = await axios.get(`/api/artist-coordinates?artist=${encodeURIComponent(artistName)}`);
+        return response.data;
     } catch (error) {
-        console.error('Error calculating coordinates:', error);
+        console.error('Error fetching artist coordinates:', error);
     }
-    return null; // Ensure a return value if no valid artist is found
-}
-
-// Fetch similar artists from Last.fm
-async function getSimilarArtistsFromLastFM(artistName) {
-    try {
-        const response = await axios.get('http://ws.audioscrobbler.com/2.0/', {
-            params: {
-                method: 'artist.getsimilar',
-                artist: artistName,
-                api_key: process.env.LASTFM_API_KEY,
-                format: 'json',
-            }
-        });
-
-        return response.status === 200 ? response.data.similarartists.artist || [] : [];
-    } catch (error) {
-        console.error('Error fetching similar artists:', error);
-        return [];
-    }
-}
-
-// Fetch top tags from Last.fm
-async function getTopTagsFromLastFM(artistName) {
-    try {
-        const response = await axios.get('http://ws.audioscrobbler.com/2.0/', {
-            params: {
-                method: 'artist.gettoptags',
-                artist: artistName,
-                autocorrect: 1,
-                api_key: process.env.LASTFM_API_KEY,
-                format: 'json',
-            }
-        });
-
-        return response.status === 200 ? (response.data.toptags.tag || []).slice(0, 10).map(tag => tag.name.toLowerCase()) : [];
-    } catch (error) {
-        console.error('Error fetching top tags:', error);
-        return [];
-    }
-}
-
-// Calculate initial coordinates based on tags
-function calculateCoordinatesFromTags(tags) {
-    const baseCoordinates = { x: 0, y: 0 };
-    const weightMultiplier = 1 / tags.length; 
-
-    tags.forEach(tag => {
-        const categories = findCategoriesForTag(tag);
-        categories.forEach(category => {
-            if (tagInfluences[category]) {
-                baseCoordinates.x += tagInfluences[category].x * weightMultiplier;
-                baseCoordinates.y += tagInfluences[category].y * weightMultiplier;
-            }
-        });
-    });
-
-    return baseCoordinates;
-}
-
-// Adjust artist coordinates based on tag data
-function adjustCoordinatesForTags(coordinates, tags) {
-    const categoryInfluence = {
-        Sexy: 0,
-        NotSexy: 0,
-        Vampire: 0,
-        Carnival: 0,
-    };
-
-    tags.forEach(tagName => {
-        const categories = findCategoriesForTag(tagName);
-        categories.forEach(category => {
-            if (category in categoryInfluence) {
-                categoryInfluence[category]++;
-            }
-        });
-    });
-
-    const dynamicAdjustmentFactor = (totalCategories) => {
-        return 1 / (totalCategories || 1); // Avoid division by zero
-    };
-
-    const xShift =
-        ((categoryInfluence.Sexy * tagInfluences.Sexy.x) +
-        (categoryInfluence.NotSexy * tagInfluences.NotSexy.x) +
-        (categoryInfluence.Vampire * tagInfluences.Vampire.x) +
-        (categoryInfluence.Carnival * tagInfluences.Carnival.x)) * dynamicAdjustmentFactor(Object.keys(categoryInfluence).length);
-
-    const yShift =
-        ((categoryInfluence.Sexy * tagInfluences.Sexy.y) +
-        (categoryInfluence.NotSexy * tagInfluences.NotSexy.y) +
-        (categoryInfluence.Vampire * tagInfluences.Vampire.y) +
-        (categoryInfluence.Carnival * tagInfluences.Carnival.y)) * dynamicAdjustmentFactor(Object.keys(categoryInfluence).length);
-
-    let adjustedX = Math.min(Math.max(coordinates.x + xShift, -12), 12);
-    let adjustedY = Math.min(Math.max(coordinates.y + yShift, -12), 12);
-
-    // Round the coordinates to 2 decimal places
-    adjustedX = parseFloat(adjustedX.toFixed(2));
-    adjustedY = parseFloat(adjustedY.toFixed(2));
-
-    return {
-        x: adjustedX,
-        y: adjustedY
-    };
-}
-
-// Find categories for a tag from tagData
-function findCategoriesForTag(tagName) {
-    const lowerTag = tagName.toLowerCase();
-    const matchingCategories = [];
-
-    for (const category of tagData.categories) {
-        if (category.tags.includes(lowerTag)) {
-            matchingCategories.push(category.name);
-        }
-    }
-
-    return matchingCategories;
+    return null;
 }
 
 // Plot an individual artist
@@ -221,10 +78,21 @@ function plotArtist(coordinates) {
     if (artistChart) {
         artistChart.data.datasets[0].data.push(coordinates);
         artistChart.data.datasets[0].pointBackgroundColor.push('rgba(255, 0, 0, 0.7)');
-        artistChart.data.datasets[0].pointRadius.push(10);
+        artistChart.data.datasets[0].pointRadius.push(7);
         artistChart.update();
-    } else {
-        plotArtistData([coordinates]);
+    }
+}
+
+function clearPreviousHighlight() {
+    if (artistChart) {
+        const dataset = artistChart.data.datasets[0];
+        const index = dataset.data.findIndex(point => point.pointBackgroundColor === 'rgba(255, 0, 0, 0.7)');
+        if (index !== -1) {
+            dataset.data.splice(index, 1);
+            dataset.pointBackgroundColor.splice(index, 1);
+            dataset.pointRadius.splice(index, 1);
+            artistChart.update();
+        }
     }
 }
 
@@ -243,20 +111,74 @@ function plotArtistData(data) {
                 datasets: [{
                     label: 'Artists',
                     data: chartData,
-                    pointBackgroundColor: chartData.map(() => 'rgba(75, 192, 192, 0.7)'),
+                    pointBackgroundColor: chartData.map(() => 'rgb(173, 173, 173)'),
+                    pointBorderColor: chartData.map(() => 'rgb(173, 173, 173)'),
                     pointRadius: chartData.map(() => 5),
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     x: {
                         type: 'linear',
                         position: 'bottom',
-                        title: { display: true, text: 'Dracula Music to Carnival Music' },
+                        title: { display: true, text: 'NOT SEXY',font: {
+                            size: 20,
+                            weight: 'bold',
+                            lineHeight: 1.2,
+                          },
+                          padding: {top: 20, left: 0, right: 0, bottom: 0} },
+                        ticks: { display: false },
+                        grid: {
+                            drawBorder: false,
+                            color: function(context) {
+                                if (context.tick.value === 0) {
+                                    return '#000';
+                                }
+                                return Chart.defaults.borderColor;
+                            },
+                            lineWidth: function(context) {
+                                if (context.tick.value === 0) {
+                                    return 2;
+                                }
+                                return 1;
+                            }
+                        }
                     },
-                    y: { title: { display: true, text: 'Sex Music to No Sex Music' } },
+                    y: {
+                        title: { display: true, text: 'DRACULA',font: {
+                            size: 20,
+                            weight: 'bold',
+                            lineHeight: 1.2
+                          },
+                          padding: {top: 30, left: 0, right: 0, bottom: 0 }},
+                        ticks: { display: false },
+                        grid: {
+                            drawBorder: false,
+                            color: function(context) {
+                                if (context.tick.value === 0) {
+                                    return '#000';
+                                }
+                                return Chart.defaults.borderColor;
+                            },
+                            lineWidth: function(context) {
+                                if (context.tick.value === 0) {
+                                    return 2;
+                                }
+                                return 1;
+                            }
+                        }
+                    }
                 },
+                
                 plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw.label;
+                            }
+                        }
+                    },
                     afterDraw: (chart) => {
                         const ctx = chart.ctx;
                         chart.data.datasets.forEach((dataset) => {
@@ -267,6 +189,19 @@ function plotArtistData(data) {
                                 ctx.fillText(dataPoint.label, point.x, point.y - 5);
                             });
                         });
+
+                        // Add quadrant labels
+                        ctx.save();
+                        ctx.font = '16px Arial';
+                        ctx.fillStyle = 'black';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('SEXY', chart.chartArea.width / 2, 20);
+                        ctx.fillText('NOT SEXY', chart.chartArea.width / 2, chart.chartArea.height - 10);
+                        ctx.rotate(-Math.PI / 2);
+                        ctx.fillText('VAMPIRE', -chart.chartArea.height / 2, chart.chartArea.width - 10);
+                        ctx.rotate(Math.PI / 2);
+                        ctx.fillText('CARNIVAL', 20, chart.chartArea.height / 2);
+                        ctx.restore();
                     },
                 },
             }
@@ -282,8 +217,59 @@ function highlightArtist(artist) {
     const index = dataset.data.findIndex(point => point.label.toLowerCase() === artist.artist.toLowerCase());
 
     if (index !== -1) {
-        dataset.pointBackgroundColor = dataset.data.map((_, idx) => idx === index ? 'rgba(255, 0, 0, 0.7)' : 'rgba(75, 192, 192, 0.7)');
-        dataset.pointRadius = dataset.data.map((_, idx) => idx === index ? 10 : 5);
+        dataset.pointBackgroundColor[index] = 'rgba(255, 0, 0, 0.7)';
+        dataset.pointRadius[index] = 7;
         artistChart.update();
     }
+}
+
+// Plot top artists from Spotify
+function plotTopArtists(artists) {
+    const newDataset = artists.map(artist => ({
+        x: artist.coordinates.x,
+        y: artist.coordinates.y,
+        label: artist.name
+    }));
+
+    // Calculate the average coordinates
+    const averageCoordinates = calculateAverageCoordinates(newDataset);
+
+    if (artistChart) {
+        artistChart.data.datasets.push({
+            label: 'Spotify Top Artists',
+            data: newDataset,
+            pointBackgroundColor: newDataset.map(() => 'rgba(29, 185, 84, 0.7)'),
+            pointRadius: newDataset.map(() => 7),
+        });
+
+        // Add the average point as a star
+        artistChart.data.datasets.push({
+            label: 'You',
+            data: [averageCoordinates],
+            pointBackgroundColor: 'rgb(255, 157, 0)',
+            pointRadius: 10,
+            pointStyle: 'rectRot',
+        });
+
+        artistChart.update();
+    }
+}
+
+// Calculate the average coordinates
+function calculateAverageCoordinates(data) {
+    const total = data.reduce((acc, point) => {
+        acc.x += point.x;
+        acc.y += point.y;
+        return acc;
+    }, { x: 0, y: 0 });
+
+    return {
+        x: total.x / data.length,
+        y: total.y / data.length
+    };
+}
+
+// Handle login button click
+function onLoginButtonClick() {
+    window.location.href = '/login';
 }
