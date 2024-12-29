@@ -5,19 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sexy Vampire Plotter</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="new-style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <h1>Spotify Artist Chart</h1>
+    <h1>Sexy Vampire Plotter</h1>
     
     <!-- Add a login button to initiate Spotify auth flow -->
     <a href="/login" id="login-btn">Log in with Spotify</a>
     
-    <input type="text" id="artist-search" placeholder="Search for an artist...">
-    <button id="search-btn">Search</button>
-    <canvas id="chartContainer" width="800" height="600"></canvas>
+    <form id="search-form">
+        <div id="search-container">
+            <input type="text" id="artist-search" placeholder="Search for an artist...">
+            <button type="submit" id="search-btn">Search</button>
+        </div>
+    </form>
+    
+    <div id="chart-container">
+        <canvas id="chartContainer"  width="800" height="600"></canvas>
+        <div id="sex-music" class="title">SEX MUSIC</div>
+        <div id="no-sex-music" class="title">NO SEX MUSIC</div>
+        <div id="dracula-music" class="title">DRACULA MUSIC</div>
+        <div id="carnival-music" class="title">CARNIVAL MUSIC</div>
+    </div>
+
     <script src="index.js"></script>
 </body>
 </html>

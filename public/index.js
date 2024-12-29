@@ -24,8 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('No user data ID received in the URL parameters.');
     }
 
-    document.getElementById('search-btn').addEventListener('click', onSearchButtonClick);
     document.getElementById('login-btn').addEventListener('click', onLoginButtonClick);
+    document.getElementById('search-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await onSearchButtonClick();
+    });
 });
 
 // Load initial datasets
@@ -78,7 +81,7 @@ function plotArtist(coordinates) {
     if (artistChart) {
         artistChart.data.datasets[0].data.push(coordinates);
         artistChart.data.datasets[0].pointBackgroundColor.push('rgba(255, 0, 0, 0.7)');
-        artistChart.data.datasets[0].pointRadius.push(7);
+        artistChart.data.datasets[0].pointRadius.push(10);
         artistChart.update();
     }
 }
@@ -122,12 +125,12 @@ function plotArtistData(data) {
                     x: {
                         type: 'linear',
                         position: 'bottom',
-                        title: { display: true, text: 'NOT SEXY',font: {
+                        title: { display: false, text: 'NOT SEXY',font: {
                             size: 20,
                             weight: 'bold',
                             lineHeight: 1.2,
                           },
-                          padding: {top: 20, left: 0, right: 0, bottom: 0} },
+                          padding: {top: 0, left: 0, right: 0, bottom: 0} },
                         ticks: { display: false },
                         grid: {
                             drawBorder: false,
@@ -146,12 +149,12 @@ function plotArtistData(data) {
                         }
                     },
                     y: {
-                        title: { display: true, text: 'DRACULA',font: {
+                        title: { display: false, text: 'DRACULA',font: {
                             size: 20,
                             weight: 'bold',
                             lineHeight: 1.2
                           },
-                          padding: {top: 30, left: 0, right: 0, bottom: 0 }},
+                          padding: {top: 0, left: 0, right: 0, bottom: 0 }},
                         ticks: { display: false },
                         grid: {
                             drawBorder: false,
