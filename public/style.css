@@ -6,6 +6,7 @@ body {
     height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent scrolling */
 }
 
 h1 {
@@ -66,9 +67,11 @@ h1 {
 
 #chart-container {
     position: relative;
-    width: 800px;
-    height: 600px;
+    width: 100%;
+    height: calc(100vh - 150px); /* Adjust height to fill the screen */
     margin-top: 20px;
+    flex-grow: 1; /* Allow the chart container to grow and fill the remaining space */
+    overflow: hidden; /* Prevent horizontal scrolling */
 }
 
 #chartContainer {
@@ -86,25 +89,25 @@ h1 {
 }
 
 #sex-music {
-    top: +45px;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 #no-sex-music {
-    bottom: +35px;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 #dracula-music {
-    left: -40px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
 }
 
 #carnival-music {
-    right: -40px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%) rotate(90deg);
 }
