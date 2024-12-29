@@ -7,39 +7,45 @@ let artistChart = null;
 document.addEventListener('DOMContentLoaded', async () => {
     await loadInitialData();
 
-    // Fetch and handle any redirected data from server
-    const urlParams = new URLSearchParams(window.location.search);
-    const dataId = urlParams.get('dataId');
-
-    if (dataId) {
-        try {
-            const response = await axios.get(`/api/user-data?dataId=${encodeURIComponent(dataId)}`);
-            const userTopArtists = response.data;
-            console.log('User top artists:', userTopArtists);
-            plotTopArtists(userTopArtists);
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    } else {
-        console.log('No user data ID received in the URL parameters.');
+    try {
+      const response = await fetch('/get-user-top-artists');
+      if (response.ok) {
+        const userTopArtists = await response.json();
+        console.log('User top artists:', userTopArtists);
+        plotTopArtists(userTopArtists);
+      } else {
+        console.log('No user data available from the server.');
+      }
+    } catch (error) {
+      console.error('Error fetching user top artists:', error);
     }
 
     document.getElementById('login-btn').addEventListener('click', onLoginButtonClick);
     document.getElementById('search-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        await onSearchButtonClick();
+      event.preventDefault();
+      await onSearchButtonClick();
     });
-});
+  });
 
 // Load initial datasets
 async function loadInitialData() {
     try {
         const response = await fetch('data.json');
         preloadedArtists = await response.json();
-        plotArtistData(preloadedArtists);
     } catch (error) {
         console.error('Error loading data.json:', error);
     }
+
+    // Remove loading of new_data.json
+    // try {
+    //     const newDataResponse = await fetch('new_data.json');
+    //     const newArtists = await newDataResponse.json();
+    //     preloadedArtists = [...preloadedArtists, ...newArtists];
+    // } catch (error) {
+    //     console.error('Error loading new_data.json:', error);
+    // }
+
+    plotArtistData(preloadedArtists);
 
     try {
         const tagResponse = await fetch('tag_data.json');
@@ -81,7 +87,7 @@ function plotArtist(coordinates) {
     if (artistChart) {
         artistChart.data.datasets[0].data.push(coordinates);
         artistChart.data.datasets[0].pointBackgroundColor.push('rgba(255, 0, 0, 0.7)');
-        artistChart.data.datasets[0].pointRadius.push(10);
+        artistChart.data.datasets[0].pointRadius.push(7);
         artistChart.update();
     }
 }

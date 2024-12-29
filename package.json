@@ -7,13 +7,12 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "axios": "^0.26.0",
-    "spotify-web-api-node": "^5.0.2",
+    "axios": "^1.7.9",
     "bottleneck": "^2.19.5",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "express": "^4.21.2",
+    "spotify-web-api-node": "^5.0.2"
   },
-  "devDependencies": {},
   "engines": {
     "node": "14.x"
   },

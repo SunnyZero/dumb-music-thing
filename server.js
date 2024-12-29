@@ -1,18 +1,26 @@
-const express = require('express');
-const path = require('path');
-const SpotifyWebApi = require('spotify-web-api-node');
-const axios = require('axios');
-const fs = require('fs');
-const Bottleneck = require('bottleneck');
-const dotenv = require('dotenv');
+   const session = require('express-session');
+   const express = require('express');
+   const path = require('path');
+   const SpotifyWebApi = require('spotify-web-api-node');
+   const axios = require('axios');
+   const fs = require('fs');
+   const Bottleneck = require('bottleneck');
+   const dotenv = require('dotenv');
+   // Configure environment variables
+   dotenv.config();
 
-// Configure environment variables
-dotenv.config();
+   const app = express();
 
-const app = express();
+   // Use session middleware
+   app.use(session({
+     secret: 'your-secret-key', // Replace with a secure key
+     resave: false,
+     saveUninitialized: true,
+     cookie: { secure: false }
+   }));
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+   // Serve static files from the 'public' directory
+   app.use(express.static(path.join(__dirname, 'public')));
 
 // Define bottleneck limiter to comply with rate limits
 const limiter = new Bottleneck({
@@ -452,24 +460,33 @@ app.get('/login', (req, res) => {
     const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
     res.redirect(authorizeURL);
 });
-
 app.get('/callback', async (req, res) => {
     const code = req.query.code;
     try {
-        const { body: { access_token, refresh_token } } = await spotifyApi.authorizationCodeGrant(code);
-        spotifyApi.setAccessToken(access_token);
-        spotifyApi.setRefreshToken(refresh_token);
+      const { body: { access_token, refresh_token } } = await spotifyApi.authorizationCodeGrant(code);
+      spotifyApi.setAccessToken(access_token);
+      spotifyApi.setRefreshToken(refresh_token);
 
-        const userTopArtists = await getUserTopArtists();
-        const averageCoordinates = calculateAverageCoordinates(userTopArtists.map(artist => artist.coordinates));
+      const userTopArtists = await getUserTopArtists();
 
-        // Store data temporarily if needed or redirect with encoded data
-        res.redirect(`/index.html?data=${encodeURIComponent(JSON.stringify(userTopArtists))}`);
+      // Store user data in session
+      req.session.userTopArtists = userTopArtists;
+
+      // Redirect without data in the URL
+      res.redirect('/index.html');
     } catch (error) {
-        console.error('Authorization error:', error);
-        res.status(500).send('Authentication failed!');
+      console.error('Authorization error:', error);
+      res.status(500).send('Authentication failed!');
     }
-});
+  });
+
+  app.get('/get-user-top-artists', (req, res) => {
+    if (!req.session.userTopArtists) {
+      return res.status(404).send('No user data available');
+    }
+
+    res.json(req.session.userTopArtists);
+  });
 
 app.get('/api/artist-coordinates', async (req, res) => {
     const artistName = req.query.artist;
