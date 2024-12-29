@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       event.preventDefault();
       await onSearchButtonClick();
     });
+
+    // Add event listener to resize chart on window resize
+    window.addEventListener('resize', resizeChart);
   });
 
 // Load initial datasets
@@ -127,6 +130,7 @@ function plotArtistData(data) {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     x: {
                         type: 'linear',
@@ -281,4 +285,11 @@ function calculateAverageCoordinates(data) {
 // Handle login button click
 function onLoginButtonClick() {
     window.location.href = '/login';
+}
+
+// Resize chart on window resize
+function resizeChart() {
+    if (artistChart) {
+        artistChart.resize();
+    }
 }

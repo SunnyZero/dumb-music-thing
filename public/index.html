@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sexy Vampire Plotter</title>
+    <title>Sexy Dracula Plotter</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <h1>Sexy Vampire Plotter</h1>
+    <h1>Sexy Dracula Plotter</h1>
     
     <!-- Add a login button to initiate Spotify auth flow -->
-    <a href="/login" id="login-btn">Log in with Spotify</a>
+
     
     <form id="search-form">
         <div id="search-container">
@@ -22,12 +22,14 @@
     </form>
     
     <div id="chart-container">
-        <canvas id="chartContainer"  width="800" height="600"></canvas>
+        <canvas id="chartContainer"></canvas>
         <div id="sex-music" class="title">SEX MUSIC</div>
         <div id="no-sex-music" class="title">NO SEX MUSIC</div>
         <div id="dracula-music" class="title">DRACULA MUSIC</div>
         <div id="carnival-music" class="title">CARNIVAL MUSIC</div>
     </div>
+
+    <a href="/login" id="login-btn">Log in with Spotify</a>
 
     <script src="index.js"></script>
 </body>
