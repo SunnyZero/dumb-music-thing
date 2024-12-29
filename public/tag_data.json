@@ -1,0 +1,32 @@
+{
+    "categories": [
+      {
+        "name": "Sexy",
+        "description": "Music you can fuck to.",
+        "tags": [
+            "hip-hop","rnb","funk","jazz","rhythm and blues","soul","dance","electronic","techno","synthpop","trumpet","fusion","chillout","swag","hip hop","female vocalists","r&b","dirty south","southern rap","house","electronica","saxophone","sax","prog-rnb","wu-tang","indie","guitar","classical","classic rock","soft rock","singer-songwriter","shoegazer","krautrock","lo-fi","bedroom pop","instrumental","piano","composers","post-rock","bebop","alternative rock","romantic","shoegaze","avant-garde jazz","opera","industrial","gothic","gothic rock","goth","electro","idm","melodic black metal","old school death metal","pagan metal","hard rock","dark ambient","gothic metal","nwobhm","industrial rock","rock","pop","latin","sierreno","afrobeat","motown","rockabilly","rock and roll","70s","drum and bass","dnb","new wave","reggae","dub","roots reggae","jungle","big beat","corridos","corridos tumbados","reggaeton","new york","90s","ambient","east coast","grunge","drum n bass","canadian","french","dubstep","bass","90s dance","corrido tumbado","corridos belicos","west coast","swedish"
+        ]
+      },
+      {
+        "name": "NotSexy",
+        "description": "Introspective, complex, corny, or classic genres not associated with a sensual groove. Music that will scare the hos.",
+        "tags": [
+            "dream pop","pop rap","bop","electropop","kanye west","rap","trap","underground hip-hop","cloud rap","indie pop","alternative","folk","emo rap","indie rock","folk rock","americana","alt-country","experimental","avant-garde","progressive rock","math rock","jam band","country","space rock","polish","mike patton","midwest emo","experimental rap","experimental hip-hop","noise pop","heavy metal","thrash metal","death metal","black metal","hardcore punk","japanese hardcore","norwegian black metal","anarcho punk","punk rock","punk","doom metal","noise","power electronics","drone doom","drone","brutal death metal","viking metal","technical death metal","metalcore","horror punk","noise rock","japanoise","true metal","epic metal","metal","speed metal","horrorcore","juggalo","psychopathic","norwegian","anarcho-punk","peace punk","power metal","deathrock","true black metal","post-hardcore","blues","roots","mexico","ska","african","60s","80s","british","world","britpop","jam","free jazz","post-bop","eurodance","two-tone","post punk","surf rock","surf","hardcore","japanese","german","ofwgkta","psychedelic rock","post-punk","houston","street punk","gangsta rap","la punk","nyhc","psychedelic","proto-punk","emo","pop punk","political","new zealand","youth crew","american","newschool hardcore","boot camp clik","straight edge"
+        ]
+      },
+      {
+        "name": "Vampire",
+        "description": "Dark, intense, and heavy genres often associated with gothic or atmospheric music. Dracula vibes to this.",
+        "tags": [
+            "rnb","rhythm and blues","soul","chillout","kanye west","swag","rap","female vocalists","r&b","house","underground hip-hop","cloud rap","saxophone","sax","prog-rnb","wu-tang","indie","guitar","classical","alternative","emo rap","soft rock","singer-songwriter","shoegazer","alt-country","experimental","avant-garde","progressive rock","lo-fi","instrumental","piano","composers","post-rock","alternative rock","romantic","shoegaze","avant-garde jazz","midwest emo","experimental rap","opera","heavy metal","industrial","death metal","gothic","gothic rock","goth","black metal","norwegian black metal","doom metal","idm","drone doom","drone","melodic black metal","brutal death metal","technical death metal","true metal","metal","dark ambient","gothic metal","horrorcore","norwegian","industrial rock","true black metal","post-hardcore","rock","latin","blues","afrobeat","rockabilly","80s","british","new wave","free jazz","new york","post punk","hardcore","ambient","german","ofwgkta","post-punk","gangsta rap","east coast","grunge","nyhc","proto-punk","canadian","bass","emo","political","youth crew"
+        ]
+      },
+      {
+        "name": "Carnival",
+        "description": "Lively, rhythmic, and diverse genres often associated with cultural festivals or celebrations. A clown would vibe to this.",
+        "tags": [
+            "hip-hop","funk","jazz","dance","electronic","techno","dream pop","synthpop","pop rap","trumpet","fusion","bop","electropop","hip hop","trap","dirty south","southern rap","electronica","indie pop","folk","classic rock","indie rock","folk rock","americana","krautrock","math rock","bedroom pop","jam band","country","space rock","polish","bebop","mike patton","experimental hip-hop","noise pop","thrash metal","hardcore punk","japanese hardcore","anarcho punk","punk rock","punk","electro","noise","power electronics","old school death metal","viking metal","pagan metal","metalcore","horror punk","noise rock","japanoise","epic metal","hard rock","speed metal","juggalo","psychopathic","anarcho-punk","peace punk","nwobhm","power metal","deathrock","pop","roots","mexico","sierreno","ska","african","motown","rock and roll","60s","70s","world","drum and bass","dnb","britpop","reggae","dub","roots reggae","jungle","big beat","corridos","corridos tumbados","jam","post-bop","eurodance","reggaeton","two-tone","surf rock","surf","japanese","90s","psychedelic rock","houston","street punk","la punk","psychedelic","drum n bass","french","dubstep","90s dance","corrido tumbado","corridos belicos","pop punk","west coast","new zealand","american","newschool hardcore","swedish","boot camp clik","straight edge"
+        ]
+      }
+    ]
+}

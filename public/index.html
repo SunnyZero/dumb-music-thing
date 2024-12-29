@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Artist Plotter</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Spotify Artist Chart</h1>
+    
+    <!-- Add a login button to initiate Spotify auth flow -->
+    <a href="/login" id="login-btn">Log in with Spotify</a>
+    
+    <input type="text" id="artist-search" placeholder="Search for an artist...">
+    <button id="search-btn">Search</button>
+    <canvas id="chartContainer" width="800" height="600"></canvas>
+    <script src="index.js"></script>
+</body>
